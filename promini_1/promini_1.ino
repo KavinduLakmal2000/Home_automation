@@ -6,6 +6,9 @@ boolean mainP = true;
 int rawV = 0;
 float i = 0.00;
 
+int autocharge = 0;
+boolean automode;
+
 void setup() {
   Serial.begin(9600);
 
@@ -23,10 +26,15 @@ void setup() {
   pinMode(4,OUTPUT); // battery or 230v mode
   pinMode(3,OUTPUT); // outside pir power
   pinMode(2,INPUT); // 5v status in
-  pinMode(16,OUTPUT); // volt meter on/off
+  pinMode(6,INPUT); // 12v status in
+  pinMode(16,OUTPUT); // volt meter on/off (A2)
+  pinMode(17,OUTPUT); // buzzer (A3)
+  pinMode(21,OUTPUT); // outside light (A7)
 
   digitalWrite(10,LOW);
   digitalWrite(4,LOW);
+  digitalWrite(17,LOW);
+  digitalWrite(21,LOW);
   digitalWrite(9,HIGH);
   
 }
@@ -37,6 +45,25 @@ digitalWrite(13,HIGH);
 i = 3.95;
 batData();
 read5V();
+read12V();
+B_chrge();
+
+if (automode){
+  autocharge++;
+  digitalWrite(12,HIGH);
+  digitalWrite(11,HIGH); 
+  
+  if (autocharge == 5000){
+    autocharge = 0;
+    automode = false;
+    digitalWrite(11,LOW);
+    digitalWrite(12,LOW); 
+  }
+}
+else{
+  digitalWrite(11,LOW);
+  digitalWrite(12,LOW); 
+}
 
 if(digitalRead(8)==LOW){
   mainP = false;
@@ -50,13 +77,30 @@ while (!mainP){
   i = 3.75;
   batData();
   read5V();
+  read12V();
   
   if(digitalRead(8)==HIGH){
   mainP = true;
+  autocharge = 0;
+  automode = true;
 }
 digitalWrite(12,LOW);
 digitalWrite(11,LOW);
 digitalWrite(10,LOW);
+////////////////////////////////////outside light //////////////////////
+if(data()=="83"){ // S
+ digitalWrite(21,HIGH);
+}
+if (data()=="115"){ // s
+  digitalWrite(21,LOW);
+}
+//////////////////////////////////// Buzzer ////////////////////////////
+if(data()=="68"){ // D
+ digitalWrite(9,HIGH);
+}
+if (data()=="100"){ // d
+  digitalWrite(9,LOW);
+}
 //////////////////////////////////// kl light///////////////////////////
 if(data()=="75"){ // K
  digitalWrite(9,HIGH);
@@ -231,5 +275,23 @@ void read5V(){
   }
   else{
     Serial.write("m");
+  }
+}
+
+void read12V(){
+  if (digitalRead(6)==HIGH){
+    Serial.write("X");
+  }
+  else{
+    Serial.write("x");
+  }
+}
+
+void B_chrge(){
+  if (digitalRead(11) == HIGH){
+    Serial.write("N");
+  }
+  else{
+    Serial.write("n");
   }
 }
