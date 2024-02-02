@@ -1,4 +1,4 @@
-#define sensorPin A1
+ #define sensorPin A1
 
 String DATA;
 boolean mainP = true;
@@ -15,7 +15,7 @@ void setup() {
   //6 digitalpin is free,
 
   pinMode(13,OUTPUT); // loop test
-  pinMode(12,OUTPUT); // battery select
+  pinMode(12,OUTPUT); // 16v battery on/off
   pinMode(11,OUTPUT); // charger
   pinMode(10,OUTPUT); // power cut
   pinMode(9,OUTPUT); // KL Light on off
@@ -27,7 +27,7 @@ void setup() {
   pinMode(3,OUTPUT); // outside pir power
   pinMode(2,INPUT); // 5v status in
   pinMode(6,INPUT); // 12v status in
-  pinMode(16,OUTPUT); // volt meter on/off (A2)
+  //pinMode(16,OUTPUT); // volt meter on/off (A2) (not use)
   pinMode(17,OUTPUT); // buzzer (A3)
   pinMode(21,OUTPUT); // outside light (A7)
 
@@ -53,17 +53,22 @@ if (automode){
   digitalWrite(12,HIGH);
   digitalWrite(11,HIGH); 
   
-  if (autocharge == 5000){
+  if (autocharge == 10000){
     autocharge = 0;
     automode = false;
     digitalWrite(11,LOW);
     digitalWrite(12,LOW); 
   }
+  
+if(data()=="89" || data()=="119"){ // Y || w
+ automode = false;
+ autocharge = 0;
+ digitalWrite(11,LOW);
+ digitalWrite(12,LOW);
 }
-else{
-  digitalWrite(11,LOW);
-  digitalWrite(12,LOW); 
+  
 }
+
 
 if(digitalRead(8)==LOW){
   mainP = false;
@@ -74,6 +79,7 @@ else {
 ////////////////////////////////////////////////////////////when power is gone
 while (!mainP){
   digitalWrite(13,LOW);
+  digitalWrite(12,HIGH);
   i = 3.75;
   batData();
   read5V();
@@ -84,7 +90,6 @@ while (!mainP){
   autocharge = 0;
   automode = true;
 }
-digitalWrite(12,LOW);
 digitalWrite(11,LOW);
 digitalWrite(10,LOW);
 ////////////////////////////////////outside light //////////////////////
@@ -96,10 +101,10 @@ if (data()=="115"){ // s
 }
 //////////////////////////////////// Buzzer ////////////////////////////
 if(data()=="68"){ // D
- digitalWrite(9,HIGH);
+ digitalWrite(17,HIGH);
 }
 if (data()=="100"){ // d
-  digitalWrite(9,LOW);
+  digitalWrite(17,LOW);
 }
 //////////////////////////////////// kl light///////////////////////////
 if(data()=="75"){ // K
@@ -129,45 +134,45 @@ if(data()=="70"){ // F
 if (data()=="71"){ // G
   digitalWrite(3,LOW);
 }
-////////////////////////////////////battery selecter ///////////////////////////
+
+////////////////////////////////////////////////// 16v battery on/off ///////////////////////////////
+
 if (data()=="113"){ // q
  digitalWrite(12,HIGH);
 }
 if (data()=="119"){ // w
   digitalWrite(12,LOW);
-}
-///////////////////////////////////volt meter on/off ////////////////////////////////
-if(data()=="67"){ // C
- digitalWrite(16,HIGH);
-}
-if (data()=="86"){ // V
-  digitalWrite(16,LOW);
 }
 
 }
 //////////////////////////////////////////////////////////////////// main loop /////////////////////////////////////////////////////////
-  
-////////////////////////////////////////// b select ////////////
+
+////////////////////////////////// charger ///////////////////////
+
+if(data()=="84"){ // T
+ digitalWrite(11,HIGH);
+ digitalWrite(12,HIGH);
+}
+if (data()=="89"){ // Y
+  digitalWrite(11,LOW);
+  digitalWrite(12,LOW);
+}
+
+////////////////////////////////////////////////// 16v battery on/off ///////////////////////////////
+
 if (data()=="113"){ // q
  digitalWrite(12,HIGH);
 }
 if (data()=="119"){ // w
   digitalWrite(12,LOW);
-}
-////////////////////////////////// charger ///////////////////////
-
-if(data()=="84"){ // T
- digitalWrite(11,HIGH);
-}
-if (data()=="89"){ // Y
-  digitalWrite(11,LOW);
 }
 /////////////////////////////////// power cut ///////////////////
 
 if(data()=="69"){ // E
  digitalWrite(10,HIGH);
+ delay(500);
 }
-if (data()=="114"){ // r
+else { // r
   digitalWrite(10,LOW);
 }
 
@@ -207,12 +212,12 @@ if (data()=="74"){ // J
   digitalWrite(4,HIGH);
 }
 
-///////////////////////////////////volt meter on/off ////////////////////////////////
-if(data()=="67"){ // C
- digitalWrite(16,HIGH);
+//////////////////////////////////// Buzzer ////////////////////////////
+if(data()=="68"){ // D
+ digitalWrite(17,HIGH);
 }
-if (data()=="86"){ // V
-  digitalWrite(16,LOW);
+if (data()=="100"){ // d
+  digitalWrite(17,LOW);
 }
 
 

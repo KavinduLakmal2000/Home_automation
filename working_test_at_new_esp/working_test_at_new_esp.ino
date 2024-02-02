@@ -149,14 +149,14 @@ void loop()
     starter = true;
   }
 
-  if (Tvoltage > 14.5) {
+  if (Tvoltage > 14.8) {
     Serial.write("Y");
     delay(20);
     Blynk.logEvent("full_charged");
-    Blynk.virtualWrite(V21, LOW);
+    //Blynk.virtualWrite(V21, LOW);
     Blynk.virtualWrite(V18, LOW);
     Blynk.virtualWrite(V3, LOW);
-    Serial.write("V");
+    Serial.write("w");
 
   }
 
@@ -361,7 +361,7 @@ void send_DHT()
   Blynk.virtualWrite(V6, h);
 }
 
-BLYNK_WRITE(V22) { // battery Selecter
+BLYNK_WRITE(V22) { // 16v battery on/off
   if (param.asInt()) {
     Serial.write("q");
   } else {
@@ -377,21 +377,19 @@ BLYNK_WRITE(V7) { // main power cut
   }
 }
 
-BLYNK_WRITE(V23) { // charger
+BLYNK_WRITE(V23) { // charger + 16v battery
 
   if (param.asInt()) {
-    Serial.write("C"); // turn on volt meter
-    delay(20);
     Blynk.virtualWrite(V18, HIGH); // charger LED
-    Blynk.virtualWrite(V21, HIGH);  // volt meter SW
-    Serial.write("T"); // turn charger on
+    Blynk.virtualWrite(V22, HIGH);  // 16v SW
+    Serial.write("T"); // turn charger and 16v battery on
 
   }
 
   else {
     Blynk.virtualWrite(V18, LOW); // charger LED
-    Blynk.virtualWrite(V21, HIGH);  // volt meter SW
-    Serial.write("Y");
+    Blynk.virtualWrite(V21, LOW);  // 16v SW
+    Serial.write("Y"); // turn off charger and 16v battery
   }
 }
 
@@ -439,7 +437,7 @@ BLYNK_WRITE(V12) { // led light mode
   }
 }
 
-
+/*
 BLYNK_WRITE(V21) { // volt meter off/on
   if (param.asInt()) {
     Serial.write("C");
@@ -447,6 +445,7 @@ BLYNK_WRITE(V21) { // volt meter off/on
     Serial.write("V");
   }
 }
+*/
 
 BLYNK_WRITE(V26) { // autolights
   if (param.asInt()) {
